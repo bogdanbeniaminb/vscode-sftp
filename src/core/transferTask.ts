@@ -93,7 +93,9 @@ export default class TransferTask implements Task {
         );
         break;
       default:
-        logger.warn(`Unsupported file type (type = ${this.fileType}). File ${src}`);
+        logger.warn(
+          `Unsupported file type (type = ${this.fileType}). File ${src}`
+        );
     }
   }
 
@@ -126,7 +128,7 @@ export default class TransferTask implements Task {
     if (mode === undefined && perserveTargetMode) {
       targetFd = await targetFs.open(target, 'w');
       [this._handle, mode] = await Promise.all([
-        srcFs.get(src),
+        srcFs.get(src)!,
         targetFs
           .fstat(targetFd)
           .then(stat => stat.mode)
@@ -134,7 +136,7 @@ export default class TransferTask implements Task {
       ]);
     } else {
       [this._handle, targetFd] = await Promise.all([
-        srcFs.get(src),
+        srcFs.get(src)!,
         targetFs.open(target, 'w'),
       ]);
     }

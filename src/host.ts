@@ -1,11 +1,14 @@
 import * as vscode from 'vscode';
 import { EXTENSION_NAME } from './constants';
 
-export function getOpenTextDocuments(): vscode.TextDocument[] {
+export function getOpenTextDocuments(): readonly vscode.TextDocument[] {
   return vscode.workspace.textDocuments;
 }
 
-export function getUserSetting(section: string, resource?: vscode.Uri | null | undefined) {
+export function getUserSetting(
+  section: string,
+  resource?: vscode.Uri | null | undefined
+) {
   return vscode.workspace.getConfiguration(section, resource);
 }
 
@@ -20,11 +23,17 @@ export function onWillSaveTextDocument(
   return vscode.workspace.onWillSaveTextDocument(listener, thisArgs);
 }
 
-export function onDidSaveTextDocument(listener: (e: vscode.TextDocument) => any, thisArgs?: any) {
+export function onDidSaveTextDocument(
+  listener: (e: vscode.TextDocument) => any,
+  thisArgs?: any
+) {
   return vscode.workspace.onDidSaveTextDocument(listener, thisArgs);
 }
 
-export function onDidOpenTextDocument(listener: (e: vscode.TextDocument) => any, thisArgs?: any) {
+export function onDidOpenTextDocument(
+  listener: (e: vscode.TextDocument) => any,
+  thisArgs?: any
+) {
   return vscode.workspace.onDidOpenTextDocument(listener, thisArgs);
 }
 
@@ -48,7 +57,10 @@ export function focusOpenEditors() {
   return executeCommand('workbench.files.action.focusOpenEditorsView');
 }
 
-export function showTextDocument(uri: vscode.Uri, option?: vscode.TextDocumentShowOptions) {
+export function showTextDocument(
+  uri: vscode.Uri,
+  option?: vscode.TextDocumentShowOptions
+) {
   return vscode.window.showTextDocument(uri, option);
 }
 
@@ -115,6 +127,12 @@ export function registerCommand(
   context.subscriptions.push(disposable);
 }
 
-export function addWorkspaceFolder(...workspaceFoldersToAdd: { uri: vscode.Uri; name?: string }[]) {
-  return vscode.workspace.updateWorkspaceFolders(0, 0, ...workspaceFoldersToAdd);
+export function addWorkspaceFolder(
+  ...workspaceFoldersToAdd: { uri: vscode.Uri; name?: string }[]
+) {
+  return vscode.workspace.updateWorkspaceFolders(
+    0,
+    0,
+    ...workspaceFoldersToAdd
+  );
 }

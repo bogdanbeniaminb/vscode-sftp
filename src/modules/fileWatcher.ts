@@ -98,8 +98,14 @@ function createWatcher(
     return;
   }
 
+  // allow array of file globs
+  let watcherFiles = watcherConfig.files;
+  if (Array.isArray(watcherFiles)) {
+    watcherFiles = '{' + watcherFiles.join(',') + '}';
+  }
+
   watcher = vscode.workspace.createFileSystemWatcher(
-    new vscode.RelativePattern(watcherBase, watcherConfig.files),
+    new vscode.RelativePattern(watcherBase, watcherFiles),
     false,
     false,
     false

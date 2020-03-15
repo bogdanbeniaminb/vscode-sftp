@@ -8,6 +8,7 @@
   "engines": {
     "vscode": "^1.30.0"
   },
+  "enableProposedApi": true,
   "bugs": {
     "url": "https://github.com/liximomo/vscode-sftp/issues",
     "email": "liximomo@gmail.com"
@@ -47,6 +48,13 @@
         {
           "id": "remoteExplorer",
           "name": "Explorer",
+          "when": "sftp.enabled"
+        }
+      ],
+      "explorer": [
+        {
+          "id": "monitoredFiles",
+          "name": "SFTP Monitored Files",
           "when": "sftp.enabled"
         }
       ]
@@ -234,6 +242,36 @@
           "light": "resources/light/refresh.svg",
           "dark": "resources/dark/refresh.svg"
         }
+      },
+      {
+        "command": "sftp.watcher.monitorFile",
+        "title": "Monitor File",
+        "category": "SFTP"
+      },
+      {
+        "command": "sftp.watcher.monitorFolder",
+        "title": "Monitor Folder",
+        "category": "SFTP"
+      },
+      {
+        "command": "sftp.watcher.unmonitorFile",
+        "title": "Unmonitor File",
+        "category": "SFTP"
+      },
+      {
+        "command": "sftp.watcher.unmonitorFolder",
+        "title": "Unmonitor Folder",
+        "category": "SFTP"
+      },
+      {
+        "command": "sftp.monitoredFiles.unmonitor",
+        "title": "Unmonitor",
+        "category": "SFTP"
+      },
+      {
+        "command": "sftp.monitoredFiles.refresh",
+        "title": "Refresh monitored files panel",
+        "category": "SFTP"
       }
     ],
     "menus": {
@@ -406,6 +444,26 @@
           "group": "sftp.trans@2",
           "alt": "sftp.forceDownload",
           "when": "sftp.enabled && explorerResourceIsFolder"
+        },
+        {
+          "command": "sftp.watcher.monitorFile",
+          "group": "sftp.monitor@3",
+          "when": "sftp.enabled && !explorerResourceIsRoot && !explorerResourceIsFolder"
+        },
+        {
+          "command": "sftp.watcher.monitorFolder",
+          "group": "sftp.monitor@3",
+          "when": "sftp.enabled && explorerResourceIsFolder"
+        },
+        {
+          "command": "sftp.watcher.unmonitorFile",
+          "group": "sftp.monitor@3",
+          "when": "sftp.enabled && !explorerResourceIsRoot && !explorerResourceIsFolder"
+        },
+        {
+          "command": "sftp.watcher.unmonitorFolder",
+          "group": "sftp.monitor@3",
+          "when": "sftp.enabled && explorerResourceIsFolder"
         }
       ],
       "editor/context": [
@@ -428,6 +486,16 @@
           "command": "sftp.remoteExplorer.editInLocal",
           "group": "2_files",
           "when": "sftp.enabled && resourceScheme == remote"
+        },
+        {
+          "command": "sftp.watcher.monitorFile",
+          "group": "3_monitor",
+          "when": "sftp.enabled && resourceScheme == file"
+        },
+        {
+          "command": "sftp.watcher.unmonitorFile",
+          "group": "3_monitor",
+          "when": "sftp.enabled && resourceScheme == file"
         }
       ],
       "editor/title/context": [
@@ -474,6 +542,11 @@
           "command": "sftp.delete.remote",
           "group": "7_modification",
           "when": "view == remoteExplorer && viewItem != root"
+        },
+        {
+          "command": "sftp.monitoredFiles.unmonitor",
+          "group": "2_files",
+          "when": "view == monitoredFiles && viewItem != root"
         }
       ],
       "scm/title": [
@@ -535,15 +608,14 @@
     "@types/jest": "^23.3.5",
     "@types/lru-cache": "^4.1.1",
     "@types/node": "^8.10.25",
-    "@types/vscode": "1.30",
     "@types/webpack-env": "^1.13.6",
     "jest": "^20.0.4",
     "memfs": "^2.15.5",
     "rimraf": "^2.6.2",
     "ts-loader": "^5.3.0",
-    "tslint": "^5.11.0",
-    "typescript": "3.1.6",
-    "typescript-tslint-plugin": "^0.0.6",
+    "tslint": "^6.1.0",
+    "typescript": "3.8.3",
+    "typescript-tslint-plugin": "^0.5.5",
     "webpack": "^4.25.1",
     "webpack-cli": "^3.1.2"
   },

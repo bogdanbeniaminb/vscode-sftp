@@ -1,3 +1,4 @@
+import { COMMAND_MONITOR_FILES_REFRESH } from './../constants';
 import * as vscode from 'vscode';
 import * as fse from 'fs-extra';
 import * as path from 'path';
@@ -5,6 +6,7 @@ import * as Joi from 'joi';
 import { CONFIG_PATH } from '../constants';
 import { reportError } from '../helper';
 import { showTextDocument } from '../host';
+import logger from '../logger';
 
 const nullable = schema => schema.optional().allow(null);
 
@@ -41,7 +43,12 @@ const configScheme = {
     .items(Joi.string()),
   ignoreFile: Joi.string(),
   watcher: {
-    files: Joi.string().allow(false, null),
+    files: Joi.any().allow(
+      Joi.array()
+        .min(1)
+        .items(Joi.string().allow(false, null)),
+      Joi.string().allow(false, null)
+    ),
     autoUpload: Joi.boolean(),
     autoDelete: Joi.boolean(),
   },
@@ -108,7 +115,7 @@ function mergedDefault(config) {
   };
 }
 
-function getConfigPath(basePath) {
+export function getConfigPath(basePath) {
   return path.join(basePath, CONFIG_PATH);
 }
 
@@ -179,6 +186,56 @@ export function newConfig(basePath) {
           { spaces: 4 }
         )
         .then(() => showTextDocument(vscode.Uri.file(configPath)));
+    })
+    .catch(reportError);
+}
+
+export function changeWatcherConfig(basePath, options) {
+  const configPath = getConfigPath(basePath);
+  return fse
+    .pathExists(configPath)
+    .then(
+      exist => {
+        if (exist) {
+          return readConfigsFromFile(configPath);
+        }
+        return [];
+      },
+      _ => []
+    )
+    .then(config => {
+      const configOptions = Array.isArray(config) ? config[0] : config;
+      let files = configOptions.watcher.files;
+      if (!Array.isArray(files)) files = [files];
+
+      const toAdd = options.add || [],
+        toRemove = options.remove || [];
+      toAdd.forEach(file => {
+        const relativePath = file.toString().replace(basePath + '/', '');
+        if (!files.includes(relativePath)) {
+          files.push(relativePath);
+        }
+      });
+
+      toRemove.forEach(file => {
+        const relativePath = file.toString().replace(basePath + '/', '');
+        if (files.includes(relativePath)) {
+          files = files.filter(item => item != relativePath);
+        }
+      });
+
+      const newConfig = {
+        ...configOptions,
+        watcher: {
+          ...configOptions.watcher,
+          files,
+        },
+      };
+      logger.info('change watcher config = ', JSON.stringify(newConfig));
+      return fse.outputJson(configPath, newConfig, { spaces: 4 });
+    })
+    .then(() => {
+      vscode.commands.executeCommand(COMMAND_MONITOR_FILES_REFRESH);
     })
     .catch(reportError);
 }

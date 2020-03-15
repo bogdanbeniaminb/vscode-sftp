@@ -1,13 +1,23 @@
 import { refreshRemoteExplorer } from '../shared';
 import createFileHandler, { FileHandlerContext } from '../createFileHandler';
-import { transfer, sync, TransferOption, SyncOption, TransferDirection } from './transfer';
+import {
+  transfer,
+  sync,
+  TransferOption,
+  SyncOption,
+  TransferDirection,
+} from './transfer';
+import { changeWatcherConfig } from '../../modules/config';
+import logger from '../../logger';
 
 function createTransferHandle(direction: TransferDirection) {
   return async function handle(this: FileHandlerContext, option) {
     const remoteFs = await this.fileService.getRemoteFileSystem(this.config);
     const localFs = this.fileService.getLocalFileSystem();
     const { localFsPath, remoteFsPath } = this.target;
-    const scheduler = this.fileService.createTransferScheduler(this.config.concurrency);
+    const scheduler = this.fileService.createTransferScheduler(
+      this.config.concurrency
+    );
     let transferConfig;
 
     if (direction === TransferDirection.REMOTE_TO_LOCAL) {
@@ -44,7 +54,9 @@ export const sync2Remote = createFileHandler<SyncOption>({
     const remoteFs = await this.fileService.getRemoteFileSystem(this.config);
     const localFs = this.fileService.getLocalFileSystem();
     const { localFsPath, remoteFsPath } = this.target;
-    const scheduler = this.fileService.createTransferScheduler(this.config.concurrency);
+    const scheduler = this.fileService.createTransferScheduler(
+      this.config.concurrency
+    );
     await sync(
       {
         srcFsPath: localFsPath,
@@ -82,7 +94,9 @@ export const sync2Local = createFileHandler<SyncOption>({
     const remoteFs = await this.fileService.getRemoteFileSystem(this.config);
     const localFs = this.fileService.getLocalFileSystem();
     const { localFsPath, remoteFsPath } = this.target;
-    const scheduler = this.fileService.createTransferScheduler(this.config.concurrency);
+    const scheduler = this.fileService.createTransferScheduler(
+      this.config.concurrency
+    );
     await sync(
       {
         srcFsPath: remoteFsPath,
@@ -188,6 +202,113 @@ export const downloadFile = createFileHandler<TransferOption>({
 export const downloadFolder = createFileHandler<TransferOption>({
   name: 'download folder',
   handle: downloadHandle,
+  transformOption() {
+    const config = this.config;
+    return {
+      perserveTargetMode: false,
+      // remoteTimeOffsetInHours: config.remoteTimeOffsetInHours,
+      ignore: config.ignore,
+    };
+  },
+});
+
+export enum MonitorType {
+  MONITOR_FILE = 'file',
+  MONITOR_FOLDER = 'folder',
+  UNMONITOR_FILE = 'unmonitor-file',
+  UNMONITOR_FOLDER = 'unmonitor-folder',
+  UNMONITOR = 'unmonitor',
+}
+
+function createMonitorHandle(type: MonitorType) {
+  return async function handle(this: FileHandlerContext, options) {
+    logger.info('create monitor handle');
+    const { localFsPath } = this.target;
+    const path = [
+      MonitorType.MONITOR_FOLDER,
+      MonitorType.UNMONITOR_FOLDER,
+    ].includes(type)
+      ? localFsPath.toString() + '/**/*'
+      : localFsPath.toString();
+    if ([MonitorType.MONITOR_FOLDER, MonitorType.MONITOR_FILE].includes(type)) {
+      await changeWatcherConfig(options.configPath, {
+        add: [path],
+      });
+    } else if (
+      [MonitorType.UNMONITOR_FOLDER, MonitorType.UNMONITOR_FILE].includes(type)
+    ) {
+      await changeWatcherConfig(options.configPath, {
+        remove: [path],
+      });
+    } else {
+      await changeWatcherConfig(options.configPath, {
+        remove: [path],
+      });
+    }
+  };
+}
+
+const monitorFileHandle = createMonitorHandle(MonitorType.MONITOR_FILE);
+const monitorFolderHandle = createMonitorHandle(MonitorType.MONITOR_FOLDER);
+const unmonitorFileHandle = createMonitorHandle(MonitorType.UNMONITOR_FILE);
+const unmonitorFolderHandle = createMonitorHandle(MonitorType.UNMONITOR_FOLDER);
+const unmonitorHandle = createMonitorHandle(MonitorType.UNMONITOR);
+
+export const monitorFile = createFileHandler<TransferOption>({
+  name: 'monitor file',
+  handle: monitorFileHandle,
+  transformOption() {
+    const config = this.config;
+    return {
+      perserveTargetMode: false,
+      // remoteTimeOffsetInHours: config.remoteTimeOffsetInHours,
+      ignore: config.ignore,
+    };
+  },
+});
+
+export const monitorFolder = createFileHandler<TransferOption>({
+  name: 'monitor folder',
+  handle: monitorFolderHandle,
+  transformOption() {
+    const config = this.config;
+    return {
+      perserveTargetMode: false,
+      // remoteTimeOffsetInHours: config.remoteTimeOffsetInHours,
+      ignore: config.ignore,
+    };
+  },
+});
+
+export const unmonitorFile = createFileHandler<TransferOption>({
+  name: 'unmonitor file',
+  handle: unmonitorFileHandle,
+  transformOption() {
+    const config = this.config;
+    return {
+      perserveTargetMode: false,
+      // remoteTimeOffsetInHours: config.remoteTimeOffsetInHours,
+      ignore: config.ignore,
+    };
+  },
+});
+
+export const unmonitorFolder = createFileHandler<TransferOption>({
+  name: 'unmonitor folder',
+  handle: unmonitorFolderHandle,
+  transformOption() {
+    const config = this.config;
+    return {
+      perserveTargetMode: false,
+      // remoteTimeOffsetInHours: config.remoteTimeOffsetInHours,
+      ignore: config.ignore,
+    };
+  },
+});
+
+export const unmonitor = createFileHandler<TransferOption>({
+  name: 'unmonitor',
+  handle: unmonitorHandle,
   transformOption() {
     const config = this.config;
     return {

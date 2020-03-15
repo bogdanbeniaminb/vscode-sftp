@@ -1,3 +1,4 @@
+import { COMMAND_MONITOR_FILES_REFRESH } from './constants';
 'use strict';
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
@@ -7,20 +8,28 @@ import initCommands from './initCommands';
 import { reportError } from './helper';
 import fileActivityMonitor from './modules/fileActivityMonitor';
 import { tryLoadConfigs } from './modules/config';
-import { getAllFileService, createFileService, disposeFileService } from './modules/serviceManager';
+import {
+  getAllFileService,
+  createFileService,
+  disposeFileService,
+} from './modules/serviceManager';
 import { getWorkspaceFolders, setContextValue } from './host';
 import RemoteExplorer from './modules/remoteExplorer';
+import MonitoredFilesExplorer from './modules/monitoredFiles';
 
 async function setupWorkspaceFolder(dir) {
   const configs = await tryLoadConfigs(dir);
   configs.forEach(config => {
     createFileService(config, dir);
   });
+  vscode.commands.executeCommand(COMMAND_MONITOR_FILES_REFRESH);
 }
 
-function setup(workspaceFolders: vscode.WorkspaceFolder[]) {
+function setup(workspaceFolders: readonly vscode.WorkspaceFolder[]) {
   fileActivityMonitor.init();
-  const pendingInits = workspaceFolders.map(folder => setupWorkspaceFolder(folder.uri.fsPath));
+  const pendingInits = workspaceFolders.map(folder =>
+    setupWorkspaceFolder(folder.uri.fsPath)
+  );
 
   return Promise.all(pendingInits);
 }
@@ -54,6 +63,7 @@ export async function activate(context: vscode.ExtensionContext) {
   try {
     await setup(workspaceFolders);
     app.remoteExplorer = new RemoteExplorer(context);
+    app.monitoredFilesExplorer = new MonitoredFilesExplorer(context);
   } catch (error) {
     reportError(error);
   }

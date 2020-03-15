@@ -28,6 +28,7 @@ const config = {
       {
         test: /\.ts$/,
         exclude: /node_modules/,
+        include: path.resolve(__dirname, ''),
         use: [
           {
             loader: 'ts-loader',

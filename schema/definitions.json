@@ -14,9 +14,13 @@
         "description": "Watch external modification.",
         "properties": {
           "files": {
-            "type": "string",
-            "description": "A glob pattern.",
-            "default": "**/*"
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "A glob pattern."
+            },
+            "description": "An array of glob patterns",
+            "default": ["**/*"]
           },
           "autoUpload": {
             "type": "boolean",
@@ -31,7 +35,7 @@
         },
         "required": ["files"],
         "default": {
-          "files": "**/*",
+          "files": ["**/*"],
           "autoUpload": true,
           "autoDelete": false
         }

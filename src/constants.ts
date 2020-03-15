@@ -7,8 +7,8 @@ export const SETTING_KEY_REMOTE = 'remotefs.remote';
 
 export const REMOTE_SCHEME = 'remote';
 
-export const CONGIF_FILENAME = 'sftp.json';
-export const CONFIG_PATH = path.join(VENDOR_FOLDER, CONGIF_FILENAME);
+export const CONFIG_FILENAME = 'sftp.json';
+export const CONFIG_PATH = path.join(VENDOR_FOLDER, CONFIG_FILENAME);
 
 // command not in package.json
 export const COMMAND_TOGGLE_OUTPUT = 'sftp.toggleOutput';
@@ -49,5 +49,14 @@ export const COMMAND_REVEAL_IN_EXPLORER = 'sftp.revealInExplorer';
 export const COMMAND_REVEAL_IN_REMOTE_EXPLORER = 'sftp.revealInRemoteExplorer';
 
 export const COMMAND_REMOTEEXPLORER_REFRESH = 'sftp.remoteExplorer.refresh';
-export const COMMAND_REMOTEEXPLORER_EDITINLOCAL = 'sftp.remoteExplorer.editInLocal';
+export const COMMAND_REMOTEEXPLORER_EDITINLOCAL =
+  'sftp.remoteExplorer.editInLocal';
 export const COMMAND_REMOTEEXPLORER_VIEW_CONTENT = 'sftp.viewContent';
+
+export const COMMAND_MONITOR_FILE = 'sftp.watcher.monitorFile';
+export const COMMAND_MONITOR_FOLDER = 'sftp.watcher.monitorFolder';
+export const COMMAND_UNMONITOR_FILE = 'sftp.watcher.unmonitorFile';
+export const COMMAND_UNMONITOR_FOLDER = 'sftp.watcher.unmonitorFolder';
+
+export const COMMAND_UNMONITOR = 'sftp.monitoredFiles.unmonitor';
+export const COMMAND_MONITOR_FILES_REFRESH = 'sftp.monitoredFiles.refresh';
