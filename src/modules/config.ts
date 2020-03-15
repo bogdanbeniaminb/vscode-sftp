@@ -7,6 +7,7 @@ import { CONFIG_PATH } from '../constants';
 import { reportError } from '../helper';
 import { showTextDocument } from '../host';
 import logger from '../logger';
+import app from '../app';
 
 const nullable = schema => schema.optional().allow(null);
 
@@ -236,6 +237,7 @@ export function changeWatcherConfig(basePath, options) {
     })
     .then(() => {
       vscode.commands.executeCommand(COMMAND_MONITOR_FILES_REFRESH);
+      app.decorationProvider.refresh();
     })
     .catch(reportError);
 }

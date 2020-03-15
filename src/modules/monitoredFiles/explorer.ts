@@ -25,9 +25,9 @@ export default class MonitoredFilesExplorer {
       this._treeDataProvider.unmonitor(item)
     );
 
-    registerCommand(context, COMMAND_MONITOR_FILES_REFRESH, () =>
-      this._treeDataProvider.refresh()
-    );
+    registerCommand(context, COMMAND_MONITOR_FILES_REFRESH, () => {
+      this._treeDataProvider.refresh();
+    });
   }
 
   reveal(item: MonitoredTreeItem): Thenable<void> {

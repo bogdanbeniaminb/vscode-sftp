@@ -5,7 +5,12 @@
     "no-angle-bracket-type-assertion": false,
     "max-classes-per-file": false,
     "member-ordering": false,
-    "variable-name": [true, "ban-keywords", "check-format", "allow-leading-underscore"],
+    "variable-name": [
+      true,
+      "ban-keywords",
+      "check-format",
+      "allow-leading-underscore"
+    ],
     "array-type": false,
     "interface-name": false,
     "no-unused-expression": true,

@@ -23,6 +23,7 @@ async function setupWorkspaceFolder(dir) {
     createFileService(config, dir);
   });
   vscode.commands.executeCommand(COMMAND_MONITOR_FILES_REFRESH);
+  // app.decorationProvider._onDidChangeDecorations.fire();
 }
 
 function setup(workspaceFolders: readonly vscode.WorkspaceFolder[]) {
@@ -32,6 +33,65 @@ function setup(workspaceFolders: readonly vscode.WorkspaceFolder[]) {
   );
 
   return Promise.all(pendingInits);
+}
+
+export class WatcherDecorationProvider implements vscode.DecorationProvider {
+  workspace: string;
+  config;
+
+  _onDidChangeDecorations: vscode.EventEmitter<
+    undefined | vscode.Uri | vscode.Uri[]
+  > = new vscode.EventEmitter<undefined | vscode.Uri | vscode.Uri[]>();
+
+  onDidChangeDecorations: vscode.Event<
+    undefined | vscode.Uri | vscode.Uri[]
+  > = this._onDidChangeDecorations.event;
+
+  constructor() {
+    const workspaceFolders = getWorkspaceFolders();
+    if (workspaceFolders) {
+      this.workspace = workspaceFolders[0].uri.fsPath;
+      tryLoadConfigs(this.workspace)
+        .then(configs => {
+          if (configs.length) return configs[0];
+          return configs;
+        })
+        .then(config => {
+          this.config = config;
+        });
+    }
+  }
+
+  refresh() {
+    tryLoadConfigs(this.workspace)
+      .then(configs => {
+        if (configs.length) return configs[0];
+        return configs;
+      })
+      .then(config => {
+        this.config = config;
+        this._onDidChangeDecorations.fire();
+      });
+  }
+
+  isMonitored(uri: vscode.Uri) {
+    let files = this.config.watcher ? this.config.watcher.files : [];
+    if (!Array.isArray(files)) files = [files];
+    const relativePath = uri.fsPath.replace(this.workspace + '/', '');
+    return (
+      files.includes(relativePath) || files.includes(relativePath + '/**/*')
+    );
+  }
+
+  provideDecoration(uri: vscode.Uri, token: vscode.CancellationToken) {
+    const decoration = new vscode.Decoration();
+    if (this.isMonitored(uri)) {
+      decoration.letter = 'W';
+      decoration.bubble = true;
+      decoration.title = 'Watching';
+    }
+    return decoration;
+  }
 }
 
 // this method is called when your extension is activated
@@ -64,6 +124,9 @@ export async function activate(context: vscode.ExtensionContext) {
     await setup(workspaceFolders);
     app.remoteExplorer = new RemoteExplorer(context);
     app.monitoredFilesExplorer = new MonitoredFilesExplorer(context);
+    app.decorationProvider = new WatcherDecorationProvider();
+
+    vscode.window.registerDecorationProvider(app.decorationProvider);
   } catch (error) {
     reportError(error);
   }

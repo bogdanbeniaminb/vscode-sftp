@@ -127,18 +127,15 @@ export default class TransferTask implements Task {
     // Then check perserveTargetMode and fallback to fallbackMode if fail to get mode of target
     if (mode === undefined && perserveTargetMode) {
       targetFd = await targetFs.open(target, 'w');
-      [this._handle, mode] = await Promise.all([
-        srcFs.get(src)!,
-        targetFs
-          .fstat(targetFd)
-          .then(stat => stat.mode)
-          .catch(() => fallbackMode),
-      ]);
+      // tslint:disable
+      this._handle = await srcFs.get(src);
+      mode = await targetFs
+        .fstat(targetFd)
+        .then(stat => stat.mode)
+        .catch(() => fallbackMode);
     } else {
-      [this._handle, targetFd] = await Promise.all([
-        srcFs.get(src)!,
-        targetFs.open(target, 'w'),
-      ]);
+      this._handle = await srcFs.get(src);
+      targetFd = await targetFs.open(target, 'w');
     }
 
     try {

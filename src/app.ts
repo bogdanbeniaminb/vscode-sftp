@@ -1,3 +1,4 @@
+import { WatcherDecorationProvider } from './extension';
 import * as LRU from 'lru-cache';
 import StatusBarItem from './ui/statusBarItem';
 import { COMMAND_TOGGLE_OUTPUT } from './constants';
@@ -11,6 +12,7 @@ interface App {
   sftpBarItem: StatusBarItem;
   remoteExplorer: RemoteExplorer;
   monitoredFilesExplorer: MonitoredFilesExplorer;
+  decorationProvider: WatcherDecorationProvider;
 }
 
 const app: App = Object.create(null);
