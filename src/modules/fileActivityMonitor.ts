@@ -2,7 +2,11 @@ import * as vscode from 'vscode';
 import logger from '../logger';
 import app from '../app';
 import StatusBarItem from '../ui/statusBarItem';
-import { onDidOpenTextDocument, onDidSaveTextDocument, showConfirmMessage } from '../host';
+import {
+  onDidOpenTextDocument,
+  onDidSaveTextDocument,
+  showConfirmMessage,
+} from '../host';
 import { readConfigsFromFile } from './config';
 import {
   createFileService,
@@ -10,12 +14,17 @@ import {
   findAllFileService,
   disposeFileService,
 } from './serviceManager';
-import { reportError, isValidFile, isConfigFile, isInWorksapce } from '../helper';
+import {
+  reportError,
+  isValidFile,
+  isConfigFile,
+  isInWorksapce,
+} from '../helper';
 import { downloadFile, uploadFile } from '../fileHandlers';
 
 let workspaceWatcher: vscode.Disposable;
 
-async function handleConfigSave(uri: vscode.Uri) {
+export async function handleConfigSave(uri: vscode.Uri) {
   const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri);
   if (!workspaceFolder) {
     return;
@@ -24,7 +33,9 @@ async function handleConfigSave(uri: vscode.Uri) {
   const workspacePath = workspaceFolder.uri.fsPath;
 
   // dispose old service
-  findAllFileService(service => service.workspace === workspacePath).forEach(disposeFileService);
+  findAllFileService(service => service.workspace === workspacePath).forEach(
+    disposeFileService
+  );
 
   // create new service
   try {
@@ -65,7 +76,9 @@ async function downloadOnOpen(uri: vscode.Uri) {
   const config = fileService.getConfig();
   if (config.downloadOnOpen) {
     if (config.downloadOnOpen === 'confirm') {
-      const isConfirm = await showConfirmMessage('Do you want SFTP to download this file?');
+      const isConfirm = await showConfirmMessage(
+        'Do you want SFTP to download this file?'
+      );
       if (!isConfirm) return;
     }
 

@@ -8,6 +8,7 @@ import { reportError } from '../helper';
 import { showTextDocument } from '../host';
 import logger from '../logger';
 import app from '../app';
+import { handleConfigSave } from './fileActivityMonitor';
 
 const nullable = schema => schema.optional().allow(null);
 
@@ -233,7 +234,9 @@ export function changeWatcherConfig(basePath, options) {
         },
       };
       logger.info('change watcher config = ', JSON.stringify(newConfig));
-      return fse.outputJson(configPath, newConfig, { spaces: 4 });
+      fse.outputJson(configPath, newConfig, { spaces: 4 }).then(() => {
+        handleConfigSave(vscode.Uri.file(configPath));
+      });
     })
     .then(() => {
       vscode.commands.executeCommand(COMMAND_MONITOR_FILES_REFRESH);
