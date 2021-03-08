@@ -11,7 +11,7 @@ import { registerCommand } from '../../host';
 
 export default class MonitoredFilesExplorer {
   private _explorerView: vscode.TreeView<MonitoredTreeItem>;
-  private _treeDataProvider: MonitoredTreeDataProvider;
+  public _treeDataProvider: MonitoredTreeDataProvider;
 
   constructor(context: vscode.ExtensionContext) {
     this._treeDataProvider = new MonitoredTreeDataProvider();

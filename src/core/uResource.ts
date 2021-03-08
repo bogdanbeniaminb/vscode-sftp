@@ -4,7 +4,11 @@ import { Uri } from 'vscode';
 import { toLocalPath, toRemotePath } from '../helper';
 import { REMOTE_SCHEME } from '../constants';
 
-function createUriString(authority: string, filepath: string, query: { [x: string]: any }) {
+function createUriString(
+  authority: string,
+  filepath: string,
+  query: { [x: string]: any }
+) {
   // remove leading slash
   const normalizedPath = encodeURIComponent(filepath.replace(/^\/+/, ''));
 
@@ -22,14 +26,14 @@ class _Resource {
   constructor(uri: Uri) {
     this._uri = uri;
     if (UResource.isRemote(uri)) {
-      const query = querystring.parse<{ [x: string]: string }>(this._uri.query);
-      this._remoteId = parseInt(query.remoteId, 10);
+      const query = querystring.parse(this._uri.query);
+      this._remoteId = parseInt(query.remoteId?.toString() || '', 10);
 
       if (query.fsPath === undefined) {
         throw new Error(`fsPath is missing in remote uri ${this._uri}.`);
       }
 
-      this._fsPath = query.fsPath;
+      this._fsPath = query.fsPath.toString();
     } else {
       this._fsPath = this._uri.fsPath;
     }
@@ -72,7 +76,9 @@ export default class UResource {
     return uri.scheme === REMOTE_SCHEME;
   }
 
-  static makeResource(config: RemoteResourceConfig & { fsPath: string } | Uri): Resource {
+  static makeResource(
+    config: (RemoteResourceConfig & { fsPath: string }) | Uri
+  ): Resource {
     if (config instanceof Uri) {
       return new _Resource(config);
     }
@@ -97,13 +103,18 @@ export default class UResource {
     return new _Resource(Uri.parse(createUriString(remote, fsPath, query)));
   }
 
-  static updateResource(resource: Resource, delta: { remotePath: string }): Resource {
+  static updateResource(
+    resource: Resource,
+    delta: { remotePath: string }
+  ): Resource {
     const uri = resource.uri;
     const { remotePath } = delta;
     const query = querystring.parse(resource.uri.query);
     query.fsPath = delta.remotePath;
 
-    return new _Resource(Uri.parse(createUriString(uri.authority, remotePath, query)));
+    return new _Resource(
+      Uri.parse(createUriString(uri.authority, remotePath, query))
+    );
   }
 
   static from(uri: Uri, root: Resource | ResourceConfig): UResource {
@@ -111,7 +122,12 @@ export default class UResource {
       return new UResource(new _Resource(uri), root as Resource);
     }
 
-    const { localBasePath, remoteBasePath, remote, remoteId } = root as ResourceConfig;
+    const {
+      localBasePath,
+      remoteBasePath,
+      remote,
+      remoteId,
+    } = root as ResourceConfig;
 
     let localResouce: Resource;
     let remoteResouce: Resource;
@@ -124,7 +140,11 @@ export default class UResource {
       localResouce = new _Resource(Uri.file(localFsPath));
       remoteResouce = new _Resource(uri);
     } else {
-      const remoteFsPath = toRemotePath(uri.fsPath, localBasePath, remoteBasePath);
+      const remoteFsPath = toRemotePath(
+        uri.fsPath,
+        localBasePath,
+        remoteBasePath
+      );
       remoteResouce = UResource.makeResource({
         remote,
         fsPath: remoteFsPath,

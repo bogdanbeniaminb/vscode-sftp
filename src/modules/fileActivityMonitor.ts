@@ -45,6 +45,12 @@ export async function handleConfigSave(uri: vscode.Uri) {
     reportError(error);
   } finally {
     app.remoteExplorer.refresh();
+    if (app.decorationProvider) {
+      app.decorationProvider._onDidChangeFileDecorations.fire(undefined);
+    }
+    if (app.monitoredFilesExplorer) {
+      app.monitoredFilesExplorer._treeDataProvider.refresh();
+    }
   }
 }
 

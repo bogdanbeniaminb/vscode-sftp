@@ -1,5 +1,6 @@
-import { COMMAND_MONITOR_FILES_REFRESH } from './constants';
 'use strict';
+
+import { COMMAND_MONITOR_FILES_REFRESH } from './constants';
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
@@ -23,7 +24,6 @@ async function setupWorkspaceFolder(dir) {
     createFileService(config, dir);
   });
   vscode.commands.executeCommand(COMMAND_MONITOR_FILES_REFRESH);
-  // app.decorationProvider._onDidChangeDecorations.fire();
 }
 
 function setup(workspaceFolders: readonly vscode.WorkspaceFolder[]) {
@@ -35,17 +35,18 @@ function setup(workspaceFolders: readonly vscode.WorkspaceFolder[]) {
   return Promise.all(pendingInits);
 }
 
-export class WatcherDecorationProvider implements vscode.DecorationProvider {
+export class WatcherDecorationProvider
+  implements vscode.FileDecorationProvider {
   workspace: string;
   config;
 
-  _onDidChangeDecorations: vscode.EventEmitter<
+  _onDidChangeFileDecorations: vscode.EventEmitter<
     undefined | vscode.Uri | vscode.Uri[]
   > = new vscode.EventEmitter<undefined | vscode.Uri | vscode.Uri[]>();
 
-  onDidChangeDecorations: vscode.Event<
+  onDidChangeFileDecorations: vscode.Event<
     undefined | vscode.Uri | vscode.Uri[]
-  > = this._onDidChangeDecorations.event;
+  > = this._onDidChangeFileDecorations.event;
 
   constructor() {
     const workspaceFolders = getWorkspaceFolders();
@@ -58,11 +59,14 @@ export class WatcherDecorationProvider implements vscode.DecorationProvider {
         })
         .then(config => {
           this.config = config;
+          this._onDidChangeFileDecorations.fire(undefined);
         });
     }
   }
 
   refresh() {
+    if (!this.workspace) return;
+
     tryLoadConfigs(this.workspace)
       .then(configs => {
         if (configs.length) return configs[0];
@@ -70,7 +74,7 @@ export class WatcherDecorationProvider implements vscode.DecorationProvider {
       })
       .then(config => {
         this.config = config;
-        this._onDidChangeDecorations.fire();
+        this._onDidChangeFileDecorations.fire(undefined);
       });
   }
 
@@ -83,12 +87,11 @@ export class WatcherDecorationProvider implements vscode.DecorationProvider {
     );
   }
 
-  provideDecoration(uri: vscode.Uri, token: vscode.CancellationToken) {
-    const decoration = new vscode.Decoration();
+  provideFileDecoration(uri: vscode.Uri, token: vscode.CancellationToken) {
+    const decoration = new vscode.FileDecoration();
     if (this.isMonitored(uri)) {
-      decoration.letter = 'W';
-      decoration.bubble = true;
-      decoration.title = 'Watching';
+      decoration.badge = 'W';
+      decoration.tooltip = 'Watching for SFTP sync';
     }
     return decoration;
   }
@@ -119,6 +122,9 @@ export async function activate(context: vscode.ExtensionContext) {
     if (app.remoteExplorer) {
       app.remoteExplorer.refresh();
     }
+    if (app.monitoredFilesExplorer) {
+      app.monitoredFilesExplorer._treeDataProvider.refresh();
+    }
   });
   try {
     await setup(workspaceFolders);
@@ -126,7 +132,7 @@ export async function activate(context: vscode.ExtensionContext) {
     app.monitoredFilesExplorer = new MonitoredFilesExplorer(context);
     app.decorationProvider = new WatcherDecorationProvider();
 
-    vscode.window.registerDecorationProvider(app.decorationProvider);
+    vscode.window.registerFileDecorationProvider(app.decorationProvider);
   } catch (error) {
     reportError(error);
   }

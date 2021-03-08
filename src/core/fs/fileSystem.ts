@@ -18,7 +18,18 @@ export enum FileType {
 
 export interface FileOption {
   flags?: string;
-  encoding?: string;
+  encoding?:
+    | 'ascii'
+    | 'utf8'
+    | 'utf-8'
+    | 'utf16le'
+    | 'ucs2'
+    | 'ucs-2'
+    | 'base64'
+    | 'latin1'
+    | 'binary'
+    | 'hex'
+    | undefined;
   mode?: number;
   autoClose?: boolean;
   fd?: FileHandle;
@@ -58,8 +69,15 @@ export default abstract class FileSystem {
     this.pathResolver = pathResolver;
   }
 
-  abstract readFile(path: string, option?: FileOption): Promise<string | Buffer>;
-  abstract open(path: string, flags: string, mode?: number): Promise<FileHandle>;
+  abstract readFile(
+    path: string,
+    option?: FileOption
+  ): Promise<string | Buffer>;
+  abstract open(
+    path: string,
+    flags: string,
+    mode?: number
+  ): Promise<FileHandle>;
   abstract close(fd: FileHandle): Promise<void>;
   abstract fstat(fd: FileHandle): Promise<FileStats>;
   /**

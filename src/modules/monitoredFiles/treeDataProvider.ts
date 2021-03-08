@@ -6,10 +6,11 @@ import { tryLoadConfigs, changeWatcherConfig } from '../config';
 export class MonitoredTreeDataProvider
   implements vscode.TreeDataProvider<MonitoredTreeItem> {
   _onDidChangeTreeData: vscode.EventEmitter<
-    MonitoredTreeItem
-  > = new vscode.EventEmitter<MonitoredTreeItem>();
-  readonly onDidChangeTreeData: vscode.Event<MonitoredTreeItem> = this
-    ._onDidChangeTreeData.event;
+    MonitoredTreeItem | undefined | null
+  > = new vscode.EventEmitter<MonitoredTreeItem | undefined | null>();
+  readonly onDidChangeTreeData: vscode.Event<
+    MonitoredTreeItem | undefined | null
+  > = this._onDidChangeTreeData.event;
 
   data: MonitoredTreeItem[];
   workspace: string;
@@ -60,13 +61,15 @@ export class MonitoredTreeDataProvider
         if (configs.length) return configs[0];
         return configs;
       })
-      .then(config => config.watcher.files || [])
+      .then(config => (config.watcher && config.watcher.files) || [])
       .then(files => {
-        const data = files.map(file => new MonitoredTreeItem(file));
+        const data = files.map((file: string) => {
+          const item = new MonitoredTreeItem(file);
+          return item;
+        });
+        this._onDidChangeTreeData.fire(undefined);
         this.data = data;
       });
-
-    this._onDidChangeTreeData.fire();
   }
 }
 

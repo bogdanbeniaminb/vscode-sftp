@@ -54,7 +54,7 @@ interface ServiceOption {
 }
 
 interface WatcherConfig {
-  files: false | string;
+  files: false | string | string[];
   autoUpload: boolean;
   autoDelete: boolean;
 }
@@ -300,6 +300,12 @@ function getCompleteConfig(
       throw new Error(`Environment variable "${evnVarName}" not found`);
     }
     mergedConfig.agent = val;
+  }
+
+  if (mergedConfig.watcher && mergedConfig.watcher.files) {
+    if (!Array.isArray(mergedConfig.watcher.files)) {
+      mergedConfig.watcher.files = [mergedConfig.watcher.files];
+    }
   }
 
   return mergedConfig;

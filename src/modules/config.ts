@@ -1,4 +1,3 @@
-import { COMMAND_MONITOR_FILES_REFRESH } from './../constants';
 import * as vscode from 'vscode';
 import * as fse from 'fs-extra';
 import * as path from 'path';
@@ -40,15 +39,11 @@ const configScheme = {
   uploadOnSave: Joi.boolean(),
   downloadOnOpen: Joi.boolean().allow('confirm'),
 
-  ignore: Joi.array()
-    .min(0)
-    .items(Joi.string()),
+  ignore: Joi.array().min(0).items(Joi.string()),
   ignoreFile: Joi.string(),
   watcher: {
     files: Joi.any().allow(
-      Joi.array()
-        .min(1)
-        .items(Joi.string().allow(false, null)),
+      Joi.array().min(1).items(Joi.string().allow(false, null)),
       Joi.string().allow(false, null)
     ),
     autoUpload: Joi.boolean(),
@@ -65,9 +60,7 @@ const configScheme = {
   remoteTimeOffsetInHours: Joi.number(),
 
   remoteExplorer: {
-    filesExclude: Joi.array()
-      .min(0)
-      .items(Joi.string()),
+    filesExclude: Joi.array().min(0).items(Joi.string()),
   },
 };
 
@@ -207,7 +200,8 @@ export function changeWatcherConfig(basePath, options) {
     )
     .then(config => {
       const configOptions = Array.isArray(config) ? config[0] : config;
-      let files = configOptions.watcher.files;
+      let files =
+        (configOptions.watcher ? configOptions.watcher.files : []) || [];
       if (!Array.isArray(files)) files = [files];
 
       const toAdd = options.add || [],
@@ -239,8 +233,8 @@ export function changeWatcherConfig(basePath, options) {
       });
     })
     .then(() => {
-      vscode.commands.executeCommand(COMMAND_MONITOR_FILES_REFRESH);
       app.decorationProvider.refresh();
+      app.monitoredFilesExplorer._treeDataProvider.refresh();
     })
     .catch(reportError);
 }

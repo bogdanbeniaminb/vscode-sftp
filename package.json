@@ -2,13 +2,12 @@
   "name": "sftp",
   "displayName": "SFTP",
   "description": "SFTP/FTP sync",
-  "version": "10.12.10",
+  "version": "2.0.0",
   "publisher": "liximomo",
   "author": "liximomo <liximomo@gmail.com> (https://liximomo.github.io/)",
   "engines": {
-    "vscode": "^1.30.0"
+    "vscode": "^1.52.0"
   },
-  "enableProposedApi": true,
   "bugs": {
     "url": "https://github.com/liximomo/vscode-sftp/issues",
     "email": "liximomo@gmail.com"
@@ -608,6 +607,7 @@
     "@types/jest": "^23.3.5",
     "@types/lru-cache": "^4.1.1",
     "@types/node": "^8.10.25",
+    "@types/vscode": "1.52",
     "@types/webpack-env": "^1.13.6",
     "jest": "^20.0.4",
     "memfs": "^2.15.5",

@@ -64,14 +64,19 @@ function dirFirstSort(fileA: ExplorerItem, fileB: ExplorerItem) {
 }
 
 export default class RemoteTreeData
-  implements vscode.TreeDataProvider<ExplorerItem>, vscode.TextDocumentContentProvider {
+  implements
+    vscode.TreeDataProvider<ExplorerItem>,
+    vscode.TextDocumentContentProvider {
   private _roots: ExplorerRoot[] | null;
   private _rootsMap: Map<Id, ExplorerRoot> | null;
-  private _onDidChangeFolder: vscode.EventEmitter<ExplorerItem> = new vscode.EventEmitter<
+  private _onDidChangeFolder: vscode.EventEmitter<
     ExplorerItem
-  >();
-  private _onDidChangeFile: vscode.EventEmitter<vscode.Uri> = new vscode.EventEmitter<vscode.Uri>();
-  readonly onDidChangeTreeData: vscode.Event<ExplorerItem> = this._onDidChangeFolder.event;
+  > = new vscode.EventEmitter<ExplorerItem>();
+  private _onDidChangeFile: vscode.EventEmitter<
+    vscode.Uri
+  > = new vscode.EventEmitter<vscode.Uri>();
+  readonly onDidChangeTreeData: vscode.Event<ExplorerItem> = this
+    ._onDidChangeFolder.event;
   readonly onDidChange: vscode.Event<vscode.Uri> = this._onDidChangeFile.event;
 
   // FIXME: refresh can't work for user created ExplorerItem
@@ -82,7 +87,7 @@ export default class RemoteTreeData
       this._roots = null;
       this._rootsMap = null;
 
-      this._onDidChangeFolder.fire();
+      // this._onDidChangeFolder.fire();
       return;
     }
 
@@ -93,7 +98,9 @@ export default class RemoteTreeData
       const children = await this.getChildren(item);
       children
         .filter(i => !i.isDirectory)
-        .forEach(i => this._onDidChangeFile.fire(makePreivewUrl(i.resource.uri)));
+        .forEach(i =>
+          this._onDidChangeFile.fire(makePreivewUrl(i.resource.uri))
+        );
     } else {
       this._onDidChangeFile.fire(makePreivewUrl(item.resource.uri));
     }
@@ -111,7 +118,9 @@ export default class RemoteTreeData
     return {
       label: customLabel,
       resourceUri: item.resource.uri,
-      collapsibleState: item.isDirectory ? vscode.TreeItemCollapsibleState.Collapsed : undefined,
+      collapsibleState: item.isDirectory
+        ? vscode.TreeItemCollapsibleState.Collapsed
+        : undefined,
       contextValue: isRoot ? 'root' : item.isDirectory ? 'folder' : 'file',
       command: item.isDirectory
         ? undefined
@@ -132,10 +141,14 @@ export default class RemoteTreeData
 
     const root = this.findRoot(item.resource.uri);
     if (!root) {
-      throw new Error(`Can't find config for remote resource ${item.resource.uri}.`);
+      throw new Error(
+        `Can't find config for remote resource ${item.resource.uri}.`
+      );
     }
     const config = root.explorerContext.config;
-    const remotefs = await root.explorerContext.fileService.getRemoteFileSystem(config);
+    const remotefs = await root.explorerContext.fileService.getRemoteFileSystem(
+      config
+    );
     const fileEntries = await remotefs.list(item.resource.fsPath);
 
     const filesExcludeList: string[] =
@@ -202,7 +215,9 @@ export default class RemoteTreeData
     }
 
     const config = root.explorerContext.config;
-    const remotefs = await root.explorerContext.fileService.getRemoteFileSystem(config);
+    const remotefs = await root.explorerContext.fileService.getRemoteFileSystem(
+      config
+    );
     const buffer = await remotefs.readFile(UResource.makeResource(uri).fsPath);
     return buffer.toString();
   }

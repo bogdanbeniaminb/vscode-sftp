@@ -114,6 +114,11 @@ export function createFileService(config: any, workspace: string) {
     }
   });
 
+  if (app.decorationProvider) {
+    app.decorationProvider.refresh();
+    app.monitoredFilesExplorer._treeDataProvider.refresh();
+  }
+
   return service;
 }
 
@@ -136,7 +141,9 @@ export function disposeFileService(fileService: FileService) {
   fileService.dispose();
 }
 
-export function findAllFileService(predictor: (x: FileService) => boolean): FileService[] {
+export function findAllFileService(
+  predictor: (x: FileService) => boolean
+): FileService[] {
   if (serviceManager === undefined) {
     return [];
   }

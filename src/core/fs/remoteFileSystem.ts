@@ -1,5 +1,9 @@
 import FileSystem, { FileOption } from './fileSystem';
-import { RemoteClient, ConnectOption, RemoteClientConfig } from '../remote-client';
+import {
+  RemoteClient,
+  ConnectOption,
+  RemoteClientConfig,
+} from '../remote-client';
 
 interface RFSOptionDefaults {
   remoteTimeOffsetInHours: number;
@@ -53,11 +57,11 @@ export default abstract class RemoteFileSystem extends FileSystem {
     return this.client;
   }
 
-  connect(connectOpetion: ConnectOption, config: RemoteClientConfig): Promise<void> {
-    return this.client.connect(
-      connectOpetion,
-      config
-    );
+  connect(
+    connectOpetion: ConnectOption,
+    config: RemoteClientConfig
+  ): Promise<void> {
+    return this.client.connect(connectOpetion, config);
   }
 
   onDisconnected(cb) {
@@ -95,7 +99,9 @@ export default abstract class RemoteFileSystem extends FileSystem {
         }
 
         const buffer = Buffer.concat(arr);
-        resolve(option && option.encoding ? buffer.toString(option.encoding) : buffer);
+        resolve(
+          option && option.encoding ? buffer.toString(option.encoding) : buffer
+        );
       };
 
       stream.on('data', onData);
