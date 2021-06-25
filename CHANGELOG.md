@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.1 - 2021-06-25
+
+- fixed context menu monitor/unmonitor on Windows
+
 ## 2.0.0 - 2021-03-07
 
 - Use the new Decoration API implemented in VSCode 1.52

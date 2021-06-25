@@ -9,6 +9,7 @@ import {
 } from './transfer';
 import { changeWatcherConfig } from '../../modules/config';
 import logger from '../../logger';
+import { simplifyPath } from '../../helper';
 
 function createTransferHandle(direction: TransferDirection) {
   return async function handle(this: FileHandlerContext, option) {
@@ -225,12 +226,13 @@ function createMonitorHandle(type: MonitorType) {
     logger.info('create monitor handle');
     console.log(this.target);
     const { localFsPath } = this.target;
+    const filepath = simplifyPath(localFsPath);
     const path = [
       MonitorType.MONITOR_FOLDER,
       MonitorType.UNMONITOR_FOLDER,
     ].includes(type)
-      ? localFsPath.toString() + '/**/*'
-      : localFsPath.toString();
+      ? filepath + '/**/*'
+      : filepath;
     if ([MonitorType.MONITOR_FOLDER, MonitorType.MONITOR_FILE].includes(type)) {
       await changeWatcherConfig(options.configPath, {
         add: [path],
