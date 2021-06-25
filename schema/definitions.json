@@ -14,7 +14,7 @@
         "description": "Watch external modification.",
         "properties": {
           "files": {
-            "type": "array",
+            "type": ["array", "string"],
             "items": {
               "type": "string",
               "description": "A glob pattern."

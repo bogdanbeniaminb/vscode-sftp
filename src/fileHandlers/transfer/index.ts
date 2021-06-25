@@ -223,6 +223,7 @@ export enum MonitorType {
 function createMonitorHandle(type: MonitorType) {
   return async function handle(this: FileHandlerContext, options) {
     logger.info('create monitor handle');
+    console.log(this.target);
     const { localFsPath } = this.target;
     const path = [
       MonitorType.MONITOR_FOLDER,

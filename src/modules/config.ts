@@ -200,6 +200,14 @@ export function changeWatcherConfig(basePath, options) {
     )
     .then(config => {
       const configOptions = Array.isArray(config) ? config[0] : config;
+
+      // make sure we have the correct structure for the watcher
+      configOptions.watcher = configOptions.watcher || {
+        files: [],
+        autoUpload: true,
+        autoDelete: false
+      };
+
       let files =
         (configOptions.watcher ? configOptions.watcher.files : []) || [];
       if (!Array.isArray(files)) files = [files];
